@@ -13,9 +13,9 @@ void createSnowMen() {
 
   for(int i = 0; i < 5; i++) {
     for(int j= 0; j < 5; j++) {
-      snowMen[index].x = i*10.0f;
+      snowMen[index].x = ((float)rand()/(float)(RAND_MAX)) * 100.0;
       snowMen[index].y = 0.0f;
-      snowMen[index].z = j * 10.0f;
+      snowMen[index].z = ((float)rand()/(float)(RAND_MAX)) * 100.0;
       index++;
     }
   }
