@@ -35,14 +35,15 @@ void computePos(float *x, float *z, float lx, float lz, float deltaMove);
 
 void renderLights();
 
-void renderScene2();
+void moveSnowMan(SnowMan *snowMan, float playerX, float playerZ, int index);
+
+void renderScene2(float x, float z);
 
 void renderScene(int mainWindow);
 
 void renderScenesw1(int subWindow,
                     float x, float y, float z,
                     float lx, float ly, float lz,
-                    int frame, long time, long timebase,
                     int width, int height);
 
 void renderScenesw2(int subWindow,
@@ -53,4 +54,4 @@ void renderScenesw2(int subWindow,
 void renderSceneAll(int mainWindow, int subWindow1, int subWindow2,
                     float *lx, float *ly, float *lz, float *x, float *y, float *z,
                     float deltaMove, float deltaAngle, float *angle,
-                    int frame, long time, long timebase, int width, int height);
+                    int width, int height);

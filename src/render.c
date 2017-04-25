@@ -1,4 +1,10 @@
+#include <math.h>
 #include "render.h"
+
+// variables to compute and display frames per second
+int frame;
+long time, timebase;
+char displayFps[50];
 
 void createSnowMen() {
   int index = 0;
@@ -119,10 +125,10 @@ void computePos(float *x, float *z, float lx, float lz, float deltaMove) {
 // add light to Scene
 //
 void renderLights() {
-  static float amb[] =  {0.4, 0.4, 0.4, 0.0};
+  static float amb[] =  {0.4, 0.4, 0.4, 0.5};
   static float dif[] =  {1.0, 1.0, 1.0, 0.0};
 
-  float light_diffuse[] = {1.0, 0.0, 1.0, 1.0};
+  float light_diffuse[] = {1.0, 1.0, 1.0, 0.5};
   float light_position[] = {-1.0, 1.0, 1.0, 0.0};
 
   // set lights
@@ -135,8 +141,62 @@ void renderLights() {
   glMaterialfv(GL_FRONT, GL_DIFFUSE, dif);
 }
 
+void moveSnowMan(SnowMan *snowMan, float playerX, float playerZ, int index) {
+  const float minDistance = 1.05f;
+  float distance, newX, newZ;
+  int applyNew = 1, applyNewX = 0, applyNewZ = 0;
+
+  if (playerX > snowMan->x) {
+    newX = snowMan->x + 0.01f;
+  } else {
+    newX = snowMan->x - 0.01f;
+  }
+
+  if (playerZ > snowMan->z) {
+    newZ = snowMan->z + 0.01f;
+  } else {
+    newZ = snowMan->z - 0.01f;
+  }
+
+  for(int i = 0; i < 25; i++) {
+    if (i != index) {
+      distance = sqrt(pow((newX - snowMen[i].x), 2) + pow((newZ - snowMen[i].z), 2));
+
+      if (abs(distance) < minDistance) {
+        applyNew = 0;
+
+        distance = sqrt(pow((newX - snowMen[i].x), 2) + pow((snowMan->z - snowMen[i].z), 2));
+        if (abs(distance) > minDistance) {
+          applyNewX = 1;
+        } else {
+          applyNewX = 0;
+
+          distance = sqrt(pow((snowMan->x - snowMen[i].x), 2) + pow((newZ - snowMen[i].z), 2));
+          if (abs(distance) > minDistance) {
+            applyNewZ = 1;
+          } else {
+            applyNewZ = 0;
+          }
+        }
+      }
+    }
+  }
+
+  if (applyNew == 1) {
+    snowMan->x = newX;
+    snowMan->z = newZ;
+  } else {
+    if (applyNewX == 1) {
+      snowMan->x = newX;
+    }
+    if (applyNewZ == 1) {
+      snowMan->z = newZ;
+    }
+  }
+}
+
 // Common Render Items for all subwindows
-void renderScene2() {
+void renderScene2(float x, float z) {
   // Draw ground
   glColor3f(0.9f, 0.9f, 0.9f);
   glBegin(GL_QUADS);
@@ -146,9 +206,8 @@ void renderScene2() {
     glVertex3f( 100.0f, 0.0f, -100.0f);
   glEnd();
 
-  // Draw 36 SnowMen
   for(int i = 0; i < 25; i++) {
-    snowMen[i].x = snowMen[i].x  + 0.01f;
+    moveSnowMan(&snowMen[i], x, z, i);
     renderSnowMan(&snowMen[i]);
   }
 }
@@ -164,9 +223,7 @@ void renderScene(int mainWindow) {
 void renderScenesw1(int subWindow1,
                     float x, float y, float z,
                     float lx, float ly, float lz,
-                    int frame, long time, long timebase,
                     int width, int height) {
-  char s[50];
 
   glutSetWindow(subWindow1);
 
@@ -177,15 +234,15 @@ void renderScenesw1(int subWindow1,
       x + lx, y + ly, z + lz,
       0.0f, 1.0f, 0.0f);
 
-  renderScene2();
+  renderScene2(x, z);
 
   // display fps in the top window
   frame++;
 
-  time=glutGet(GLUT_ELAPSED_TIME);
+  time = glutGet(GLUT_ELAPSED_TIME);
   if (time - timebase > 1000) {
-    sprintf(s, "FPS:%4.2f",
-      frame * 1000.0 / (time-timebase));
+    sprintf(displayFps, "FPS:%4.2f",
+      frame * 1000.0 / (time - timebase));
     timebase = time;
     frame = 0;
   }
@@ -194,7 +251,7 @@ void renderScenesw1(int subWindow1,
 
   glPushMatrix();
   glLoadIdentity();
-  renderBitmapString(5, 30, 0, GLUT_BITMAP_HELVETICA_12, s);
+  renderBitmapString(5, 30, 0, GLUT_BITMAP_HELVETICA_12, displayFps);
   glPopMatrix();
 
   restorePerspectiveProjection();
@@ -225,7 +282,7 @@ void renderScenesw2(int subWindow,
   glutSolidCone(0.2, 0.8f, 4, 4);
   glPopMatrix();
 
-  renderScene2();
+  renderScene2(x, z);
 
   glutSwapBuffers();
 }
@@ -234,7 +291,7 @@ void renderScenesw2(int subWindow,
 void renderSceneAll(int mainWindow, int subWindow1, int subWindow2,
                     float *lx, float *ly, float *lz, float *x, float *y, float *z,
                     float deltaMove, float deltaAngle, float *angle,
-                    int frame, long time, long timebase, int width, int height) {
+                    int width, int height) {
 
   // check for keyboard movement
   if (deltaMove) {
@@ -254,6 +311,6 @@ void renderSceneAll(int mainWindow, int subWindow1, int subWindow2,
 
   renderLights();
   renderScene(mainWindow);
-  renderScenesw1(subWindow1, *x, *y, *z, *lx, *ly, *lz, frame, time, timebase, width, height);
+  renderScenesw1(subWindow1, *x, *y, *z, *lx, *ly, *lz, width, height);
   renderScenesw2(subWindow2, *x, *y, *z, *lx, *ly, *lz, *angle, deltaAngle);
 }

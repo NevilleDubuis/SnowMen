@@ -28,10 +28,6 @@ int xOrigin = -1;
 // width and height of the window
 int h,w;
 
-// variables to compute frames per second
-int frame;
-long time, timebase;
-
 // variables to hold window identifiers
 int mainWindow, subWindow1, subWindow2;
 //border between subwindows
@@ -69,12 +65,13 @@ void render2() {
 }
 
 void render1() {
-  renderScenesw1(subWindow1, x, y, z, lx, ly, lz, frame, time, timebase, w, h);
+  renderScenesw1(subWindow1, x, y, z, lx, ly, lz, w, h);
 }
 
 void render() {
-  renderSceneAll(mainWindow, subWindow1, subWindow2, &lx, &ly, &lz, &x, &y, &z,
-                 deltaMove, deltaAngle, &angle, frame, time, timebase, w, h);
+  renderSceneAll(mainWindow, subWindow1, subWindow2,
+                 &lx, &ly, &lz, &x, &y, &z,
+                 deltaMove, deltaAngle, &angle, w, h);
 }
 
 // -----------------------------------
