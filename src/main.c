@@ -17,7 +17,7 @@ float angle = 0.0f;
 float lx=0.0f, lz=-1.0f, ly = 0.0f;
 
 // XZ position of the camera
-float x=0.0f, z=5.0f, y = 1.75f;
+float x=0.0f, z=0.0f, y = 1.75f;
 
 // the key states. These variables will be zero
 //when no key is being presses
@@ -82,8 +82,10 @@ void restart() {
   togglePause();
 
   lx=0.0f; lz=-1.0f; ly = 0.0f;
-  x=0.0f; z=5.0f; y = 1.75f;
+  x=0.0f; z=0.0f; y = 1.75f;
+  deltaAngle = 0.0f;
   createSnowMen();
+  resetGameOver();
 
   togglePause();
 }
@@ -204,7 +206,6 @@ void init() {
   glClearColor(0.0, 0.0, 0.0, 0.0);
 
   glShadeModel(GL_SMOOTH);
-  glEnable(GL_LIGHTING);
   glEnable(GL_NORMALIZE);
   glEnable(GL_LIGHT0);
   glEnable(GL_LIGHT1);

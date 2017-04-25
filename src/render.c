@@ -5,8 +5,15 @@
 int frame;
 long time, timebase;
 char displayFps[50];
+char gameOverMessage[] = "GAME OVER";
 
 int pause = 0;
+
+int gameOver = 0;
+
+void resetGameOver() {
+  gameOver = 0;
+}
 
 void togglePause() {
   if (pause == 0) {
@@ -44,7 +51,7 @@ void renderSnowMan(SnowMan *snowMan) {
   glutSolidSphere(0.75f,20,20);
 
   // Draw Head
-  glTranslatef(0.0f, 1.0f, 0.0f);
+  glTranslatef(0.0f, 0.9f, 0.0f);
   glutSolidSphere(0.25f,20,20);
 
   // Draw Eyes
@@ -88,7 +95,8 @@ void renderBitmapString(float x, float y, float z,
                         void *font, char *string) {
   char *c;
 
-  glRasterPos3f(x, y,z);
+  glClear(GL_DEPTH_BUFFER_BIT);
+  glRasterPos3f(x, y, z);
   for (c=string; *c != '\0'; c++) {
     glutBitmapCharacter(font, *c);
   }
@@ -124,7 +132,7 @@ void setOrthographicProjection(int width, int height) {
 }
 
 void computePos(float *x, float *z, float lx, float lz, float deltaMove) {
-  if (!pause) {
+  if (!pause && !gameOver) {
     *x += deltaMove * lx * 0.2f;
     *z += deltaMove * lz * 0.2f;
   }
@@ -140,17 +148,16 @@ void renderLights() {
   float light_position[] = {-1.0, 1.0, 1.0, 0.0};
 
   // set lights
-  glLightfv(GL_LIGHT0, GL_DIFFUSE, light_diffuse);
-  glLightfv(GL_LIGHT0, GL_POSITION, light_position);
   glEnable(GL_LIGHT0);
   glEnable(GL_LIGHT1);
-  glEnable(GL_LIGHTING);
+  glLightfv(GL_LIGHT0, GL_DIFFUSE, light_diffuse);
+  glLightfv(GL_LIGHT0, GL_POSITION, light_position);
   glMaterialfv(GL_FRONT, GL_AMBIENT, amb);
   glMaterialfv(GL_FRONT, GL_DIFFUSE, dif);
 }
 
 void moveSnowMan(SnowMan *snowMan, float playerX, float playerZ, int index) {
-  const float minDistance = 1.001f;
+  const float minDistance = 1.2f;
   float distance, newX, newZ;
   int applyNew = 1, applyNewX = 0, applyNewZ = 0;
 
@@ -170,17 +177,17 @@ void moveSnowMan(SnowMan *snowMan, float playerX, float playerZ, int index) {
     if (i != index) {
       distance = sqrt(pow((newX - snowMen[i].x), 2) + pow((newZ - snowMen[i].z), 2));
 
-      if (abs(distance) < minDistance) {
+      if (fabs(distance) < minDistance) {
         applyNew = 0;
 
         distance = sqrt(pow((newX - snowMen[i].x), 2) + pow((snowMan->z - snowMen[i].z), 2));
-        if (abs(distance) > minDistance) {
+        if (fabs(distance) > minDistance) {
           applyNewX = 1;
         } else {
           applyNewX = 0;
 
           distance = sqrt(pow((snowMan->x - snowMen[i].x), 2) + pow((newZ - snowMen[i].z), 2));
-          if (abs(distance) > minDistance) {
+          if (fabs(distance) > minDistance) {
             applyNewZ = 1;
           } else {
             applyNewZ = 0;
@@ -203,6 +210,18 @@ void moveSnowMan(SnowMan *snowMan, float playerX, float playerZ, int index) {
   }
 }
 
+void checkDefeat(float x, float z) {
+  float distance;
+
+  for(int i = 0; i < 25; i++) {
+    distance = sqrt(pow((x - snowMen[i].x), 2) + pow((z - snowMen[i].z), 2));
+
+    if (fabs(distance) < 0.5f) {
+      gameOver = 1;
+    }
+  }
+}
+
 // Common Render Items for all subwindows
 void renderScene2(float x, float z) {
   // Draw ground
@@ -215,10 +234,14 @@ void renderScene2(float x, float z) {
   glEnd();
 
   for(int i = 0; i < 25; i++) {
-    if (!pause) {
+    if (!pause && !gameOver) {
       moveSnowMan(&snowMen[i], x, z, i);
     }
     renderSnowMan(&snowMen[i]);
+  }
+
+  if (!gameOver) {
+    checkDefeat(x, z);
   }
 }
 
@@ -262,6 +285,10 @@ void renderScenesw1(int subWindow1,
   glPushMatrix();
   glLoadIdentity();
   renderBitmapString(5, 30, 0, GLUT_BITMAP_HELVETICA_12, displayFps);
+  if (gameOver) {
+    glColor3f(1.0f, 0.0f, 0.0f);
+    renderBitmapString(350, 400, 0, GLUT_BITMAP_TIMES_ROMAN_24, gameOverMessage);
+  }
   glPopMatrix();
 
   restorePerspectiveProjection();

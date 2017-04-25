@@ -18,6 +18,8 @@ struct SnowMan
 
 SnowMan snowMen[25];
 
+void resetGameOver();
+
 void togglePause();
 
 void createSnowMen();
@@ -38,6 +40,8 @@ void computePos(float *x, float *z, float lx, float lz, float deltaMove);
 void renderLights();
 
 void moveSnowMan(SnowMan *snowMan, float playerX, float playerZ, int index);
+
+void checkDefeat(float x, float z);
 
 void renderScene2(float x, float z);
 
