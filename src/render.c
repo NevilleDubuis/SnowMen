@@ -6,6 +6,16 @@ int frame;
 long time, timebase;
 char displayFps[50];
 
+int pause = 0;
+
+void togglePause() {
+  if (pause == 0) {
+    pause = 1;
+  } else {
+    pause = 0;
+  }
+}
+
 void createSnowMen() {
   int index = 0;
 
@@ -13,9 +23,9 @@ void createSnowMen() {
 
   for(int i = 0; i < 5; i++) {
     for(int j= 0; j < 5; j++) {
-      snowMen[index].x = ((float)rand()/(float)(RAND_MAX)) * 100.0;
+      snowMen[index].x = ((float)rand()/(float)(RAND_MAX)) * 200.0 - 100.0;
       snowMen[index].y = 0.0f;
-      snowMen[index].z = ((float)rand()/(float)(RAND_MAX)) * 100.0;
+      snowMen[index].z = ((float)rand()/(float)(RAND_MAX)) * 200.0 - 100.0;
       index++;
     }
   }
@@ -74,14 +84,10 @@ void setProjection(int w1, int h1) {
   glMatrixMode(GL_MODELVIEW);
 }
 
-void renderBitmapString(
-    float x,
-    float y,
-    float z,
-    void *font,
-    char *string) {
-
+void renderBitmapString(float x, float y, float z,
+                        void *font, char *string) {
   char *c;
+
   glRasterPos3f(x, y,z);
   for (c=string; *c != '\0'; c++) {
     glutBitmapCharacter(font, *c);
@@ -118,8 +124,10 @@ void setOrthographicProjection(int width, int height) {
 }
 
 void computePos(float *x, float *z, float lx, float lz, float deltaMove) {
-  *x += deltaMove * lx * 0.1f;
-  *z += deltaMove * lz * 0.1f;
+  if (!pause) {
+    *x += deltaMove * lx * 0.2f;
+    *z += deltaMove * lz * 0.2f;
+  }
 }
 
 // add light to Scene
@@ -128,7 +136,7 @@ void renderLights() {
   static float amb[] =  {0.4, 0.4, 0.4, 0.5};
   static float dif[] =  {1.0, 1.0, 1.0, 0.0};
 
-  float light_diffuse[] = {1.0, 1.0, 1.0, 0.5};
+  float light_diffuse[] = {1.0, 1.0, 1.0, 0.1};
   float light_position[] = {-1.0, 1.0, 1.0, 0.0};
 
   // set lights
@@ -142,7 +150,7 @@ void renderLights() {
 }
 
 void moveSnowMan(SnowMan *snowMan, float playerX, float playerZ, int index) {
-  const float minDistance = 1.05f;
+  const float minDistance = 1.001f;
   float distance, newX, newZ;
   int applyNew = 1, applyNewX = 0, applyNewZ = 0;
 
@@ -207,7 +215,9 @@ void renderScene2(float x, float z) {
   glEnd();
 
   for(int i = 0; i < 25; i++) {
-    moveSnowMan(&snowMen[i], x, z, i);
+    if (!pause) {
+      moveSnowMan(&snowMen[i], x, z, i);
+    }
     renderSnowMan(&snowMen[i]);
   }
 }

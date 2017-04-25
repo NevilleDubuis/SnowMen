@@ -75,6 +75,39 @@ void render() {
 }
 
 // -----------------------------------
+//             actions
+// -----------------------------------
+
+void restart() {
+  togglePause();
+
+  lx=0.0f; lz=-1.0f; ly = 0.0f;
+  x=0.0f; z=5.0f; y = 1.75f;
+  createSnowMen();
+
+  togglePause();
+}
+
+// action for menu and keyboard
+//
+void actions(int value) {
+  switch (value) {
+    case 1:
+      glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); break;
+    case 2:
+      glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); break;
+    case 3:
+      glPolygonMode(GL_FRONT_AND_BACK, GL_POINT); break;
+    case 4:
+      togglePause(); break;
+    case 5:
+      restart(); break;
+    case 0:
+      exit(0); break;
+  }
+}
+
+// -----------------------------------
 //             KEYBOARD
 // -----------------------------------
 
@@ -84,13 +117,21 @@ void processNormalKeys(unsigned char key, int xx, int yy) {
     glutDestroyWindow(mainWindow);
     exit(0);
   }
+
+  switch (key) {
+    case 'f': actions(1); break;
+    case 'g': actions(2); break;
+    case 'h': actions(3); break;
+    case 'p': actions(4); break;
+    case 'r': actions(5); break;
+    case 'q': actions(0); break;
+  }
 }
 
 void pressKey(int key, int xx, int yy) {
-
   switch (key) {
-    case GLUT_KEY_LEFT : deltaAngle = -0.01f; break;
-    case GLUT_KEY_RIGHT : deltaAngle = 0.01f; break;
+    case GLUT_KEY_LEFT : deltaAngle = -0.02f; break;
+    case GLUT_KEY_RIGHT : deltaAngle = 0.02f; break;
     case GLUT_KEY_UP : deltaMove = 1.0f; break;
     case GLUT_KEY_DOWN : deltaMove = -1.0f; break;
   }
@@ -105,7 +146,7 @@ void releaseKey(int key, int x, int y) {
     case GLUT_KEY_LEFT :
     case GLUT_KEY_RIGHT : deltaAngle = 0; break;
     case GLUT_KEY_UP :
-    case GLUT_KEY_DOWN : deltaMove = 0;break;
+    case GLUT_KEY_DOWN : deltaMove = 0; break;
   }
 }
 
@@ -147,23 +188,6 @@ void mouseButton(int button, int state, int x, int y) {
     }
   }
 }
-
-
-// action for menu and keyboard
-//
-void actions(int value) {
-  switch (value) {
-    case 1:
-      glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); break;
-    case 2:
-      glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); break;
-    case 3:
-      glPolygonMode(GL_FRONT_AND_BACK, GL_POINT); break;
-    case 0:
-      exit(0); break;
-  }
-}
-
 
 // menu handler function
 //
@@ -218,6 +242,8 @@ int main(int argc, char **argv) {
   glutAddMenuEntry("Scene mode fils de fer (f)", 1);
   glutAddMenuEntry("Scene mode pleine (g)", 2);
   glutAddMenuEntry("Scene mode points (h)", 3);
+  glutAddMenuEntry("Pause (p)", 4);
+  glutAddMenuEntry("Recommencer (r)", 5);
   glutAddMenuEntry("Quitter (q)", 0);
   glutAttachMenu(GLUT_RIGHT_BUTTON);
 

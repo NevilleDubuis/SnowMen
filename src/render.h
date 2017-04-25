@@ -18,6 +18,8 @@ struct SnowMan
 
 SnowMan snowMen[25];
 
+void togglePause();
+
 void createSnowMen();
 
 void renderSnowMan(SnowMan *snowMan);
