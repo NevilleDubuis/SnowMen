@@ -8,9 +8,21 @@
 #include <GL/glut.h>
 #endif
 
-void setProjection(int w1, int h1);
+typedef struct SnowMan SnowMan;
+struct SnowMan
+{
+  float x;
+  float y;
+  float z;
+};
 
-void drawSnowMan();
+SnowMan snowMen[25];
+
+void createSnowMen();
+
+void renderSnowMan(SnowMan *snowMan);
+
+void setProjection(int w1, int h1);
 
 void renderBitmapString(float x, float y, float z,
                         void *font, char *string);

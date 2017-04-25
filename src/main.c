@@ -196,6 +196,7 @@ void init() {
 }
 
 int main(int argc, char **argv) {
+  createSnowMen();
 
   // init GLUT and create main window
   glutInit(&argc, argv);
@@ -232,6 +233,7 @@ int main(int argc, char **argv) {
   glutDisplayFunc(render2);
 
   // enter GLUT event processing cycle
+  glutIdleFunc(render);
   glutMainLoop();
 
   return 1;

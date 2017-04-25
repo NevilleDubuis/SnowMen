@@ -1,24 +1,26 @@
 #include "render.h"
 
-void setProjection(int w1, int h1) {
-  float ratio;
-  // Prevent a divide by zero, when window is too short
-  // (you cant make a window of zero width).
-  ratio = 1.0f * w1 / h1;
-  // Reset the coordinate system before modifying
-  glMatrixMode(GL_PROJECTION);
-  glLoadIdentity();
+void createSnowMen() {
+  int index = 0;
 
-  // Set the viewport to be the entire window
-  glViewport(0, 0, w1, h1);
+  puts("Start SnowMen Init");
 
-  // Set the clipping volume
-  gluPerspective(45,ratio,0.1,1000);
-  glMatrixMode(GL_MODELVIEW);
+  for(int i = 0; i < 5; i++) {
+    for(int j= 0; j < 5; j++) {
+      snowMen[index].x = i*10.0f;
+      snowMen[index].y = 0.0f;
+      snowMen[index].z = j * 10.0f;
+      index++;
+    }
+  }
+
+  puts("End SnowMen Init");
 }
 
+void renderSnowMan(SnowMan *snowMan) {
+  glPushMatrix();
+  glTranslatef(snowMan->x, snowMan->y, snowMan->z);
 
-void drawSnowMan() {
   glColor3f(1.0f, 1.0f, 1.0f);
 
   // Draw Body
@@ -44,6 +46,26 @@ void drawSnowMan() {
   glutSolidCone(0.08f,0.5f,10,2);
 
   glColor3f(1.0f, 1.0f, 1.0f);
+
+  glPopMatrix();
+}
+
+
+void setProjection(int w1, int h1) {
+  float ratio;
+  // Prevent a divide by zero, when window is too short
+  // (you cant make a window of zero width).
+  ratio = 1.0f * w1 / h1;
+  // Reset the coordinate system before modifying
+  glMatrixMode(GL_PROJECTION);
+  glLoadIdentity();
+
+  // Set the viewport to be the entire window
+  glViewport(0, 0, w1, h1);
+
+  // Set the clipping volume
+  gluPerspective(45,ratio,0.1,1000);
+  glMatrixMode(GL_MODELVIEW);
 }
 
 void renderBitmapString(
@@ -125,14 +147,10 @@ void renderScene2() {
   glEnd();
 
   // Draw 36 SnowMen
-  for(int i = -5; i < 5; i++)
-    for(int j=-5; j < 5; j++)
-    {
-      glPushMatrix();
-      glTranslatef(i*10.0f, 0.0f, j * 10.0f);
-      drawSnowMan();
-      glPopMatrix();
-    }
+  for(int i = 0; i < 25; i++) {
+    snowMen[i].x = snowMen[i].x  + 0.01f;
+    renderSnowMan(&snowMen[i]);
+  }
 }
 
 // Display func for main window
