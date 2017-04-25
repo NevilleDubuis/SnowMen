@@ -87,6 +87,8 @@ void restart() {
   createSnowMen();
   resetGameOver();
 
+  glDisable(GL_FOG);
+
   togglePause();
 }
 
@@ -207,6 +209,7 @@ void init() {
 
   glShadeModel(GL_SMOOTH);
   glEnable(GL_NORMALIZE);
+  glEnable(GL_LIGHTING);
   glEnable(GL_LIGHT0);
   glEnable(GL_LIGHT1);
 

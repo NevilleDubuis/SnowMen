@@ -11,6 +11,11 @@ int pause = 0;
 
 int gameOver = 0;
 
+GLuint filter; // Which Filter To Use
+GLuint fogMode[]= { GL_EXP, GL_EXP2, GL_LINEAR }; // Storage For Three Types Of Fog
+GLuint fogfilter= 2; // Which Fog To Use
+GLfloat fogColor[4] = {0.5f, 0.5f, 0.5f, 1.0f};
+
 void resetGameOver() {
   gameOver = 0;
 }
@@ -95,11 +100,13 @@ void renderBitmapString(float x, float y, float z,
                         void *font, char *string) {
   char *c;
 
+  glDisable(GL_LIGHTING);
   glClear(GL_DEPTH_BUFFER_BIT);
   glRasterPos3f(x, y, z);
   for (c=string; *c != '\0'; c++) {
     glutBitmapCharacter(font, *c);
   }
+  glEnable(GL_LIGHTING);
 }
 
 void restorePerspectiveProjection() {
@@ -157,7 +164,7 @@ void renderLights() {
 }
 
 void moveSnowMan(SnowMan *snowMan, float playerX, float playerZ, int index) {
-  const float minDistance = 1.2f;
+  const float minDistance = 1.4f;
   float distance, newX, newZ;
   int applyNew = 1, applyNewX = 0, applyNewZ = 0;
 
@@ -288,6 +295,14 @@ void renderScenesw1(int subWindow1,
   if (gameOver) {
     glColor3f(1.0f, 0.0f, 0.0f);
     renderBitmapString(350, 400, 0, GLUT_BITMAP_TIMES_ROMAN_24, gameOverMessage);
+
+    glFogi(GL_FOG_MODE, fogMode[fogfilter]);        // Fog Mode
+    glFogfv(GL_FOG_COLOR, fogColor);            // Set Fog Color
+    glFogf(GL_FOG_DENSITY, 0.35f);              // How Dense Will The Fog Be
+    glHint(GL_FOG_HINT, GL_DONT_CARE);          // Fog Hint Value
+    glFogf(GL_FOG_START, 1.0f);             // Fog Start Depth
+    glFogf(GL_FOG_END, 5.0f);               // Fog End Depth
+    glEnable(GL_FOG);                   // Enables GL_FOG
   }
   glPopMatrix();
 
@@ -307,15 +322,15 @@ void renderScenesw2(int subWindow,
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
   glLoadIdentity();
-  gluLookAt(x, y+50, z,
-      x , y - 1, z,
-      lx, 0, lz);
+  gluLookAt(x, y + 50, z,
+            x, y - 1, z,
+            lx, 0, lz);
 
   // Draw red cone at the location of the main camera
   glPushMatrix();
-  glColor3f(1.0, 0.0, 0.0);
-  glTranslatef(x, y, z);
-  glRotatef(180-(angle+deltaAngle)*180.0 / 3.14, 0.0, 1.0, 0.0);
+  glColor3f(1.0,0.0,0.0);
+  glTranslatef(x,y,z + 100);
+  glRotatef(180 - (angle + deltaAngle) * 180.0 / 3.14, 0.0, 1.0, 0.0);
   glutSolidCone(0.2, 0.8f, 4, 4);
   glPopMatrix();
 
